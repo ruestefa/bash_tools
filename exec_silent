@@ -1,0 +1,40 @@
+#!/bin/bash
+# by Stefan Ruedisuehli, 2015-08-21
+
+USAGE="Usage: $(basename $0) <SILENT> <CMD>
+
+Execute a command silently, i.e. without writing to either stdout nor stderr.
+
+Arguments:
+ - SILENT: Whether to disable any output. If false, output is shown as usual.
+ - CMD: Any command incl. options, argument, etc."
+
+main()
+{
+    # Eval inargs
+    narg_min=2
+    if [[ $# -lt $narg_min ]]
+    then
+        echo "${USAGE}"
+        exit 1
+    fi
+    local silent="$1"
+    shift
+
+    # Execute command
+    if ${silent}
+    then
+        eval "$@" >/dev/null 2>/dev/null
+    else
+        eval "$@"
+    fi
+
+    # Success check
+    if [[ $? -ne 0 ]]
+    then
+        echo "error execution command: $@"
+        exit 1
+    fi
+}
+
+main $@
