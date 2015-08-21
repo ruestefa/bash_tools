@@ -1,0 +1,26 @@
+#!/bin/bash
+# by Stefan Ruedisuehli, 2015-08-21
+
+USAGE="Usage: $(basename $0) (true|false)"
+
+main()
+{
+    narg=1
+    if [[ $# -ne $narg ]]
+    then
+        echo "${USAGE}"
+        exit 1
+    fi
+
+    case $1 in
+      ( true  ) echo false
+        ;;
+      ( false ) echo true
+        ;;
+      ( *     ) echo "${USAGE}"
+                exit 2
+        ;;
+    esac
+}
+
+main $@
