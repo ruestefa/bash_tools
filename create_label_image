@@ -1,0 +1,37 @@
+#!/bin/bash
+# by Stefan Ruedisuehli, 2015-08-21
+
+USAGE="usage: $(basename $0) <LABEL> <WIDTH> <ANGLE> <DY> <OUTFILE>"
+
+main()
+{
+    # Eval inargs
+    narg_expected=5
+    if [[ $# -ne ${narg_expected} ]]
+    then
+        echo "${USAGE}"
+        exit  1
+    fi
+    local label="$1"
+    local width="$2"
+    local angle="$3"
+    local dy="$4"
+    local outfile="$5"
+
+    local labelfile="_label.${group}.png"
+    local size="${width}x$((width/10))"
+    local pts="$((width*7/100))"
+
+    convert -verbose                    \
+        -size ${size}                   \
+        xc:white                        \
+        -fill black                     \
+        -font Palatino-Bold             \
+        -pointsize ${pts}               \
+        -gravity center                 \
+        -draw "text 0,${dy} '${label}'" \
+        -rotate ${angle}                \
+        PNG32:"${outfile}"
+}
+
+main $@
