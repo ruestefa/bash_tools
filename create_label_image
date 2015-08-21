@@ -1,26 +1,47 @@
 #!/bin/bash
 # by Stefan Ruedisuehli, 2015-08-21
 
-USAGE="usage: $(basename $0) <LABEL> <WIDTH> <ANGLE> <DY> <OUTFILE>"
+DBG=false
+
+USAGE="usage: $(basename $0) <WIDTH> <ANGLE> <DY> <OUTFILE> <LABEL>"
 
 main()
 {
     # Eval inargs
-    narg_expected=5
-    if [[ $# -ne ${narg_expected} ]]
+    narg=5
+    if [[ $# -le ${narg} ]]
     then
+        [[ $# -gt 0 ]] && echo "error: wrong arguments ($#/${narg_expected}): $@" >&2
+echo "$1"
         echo "${USAGE}"
         exit  1
     fi
-    local label="$1"
-    local width="$2"
-    local angle="$3"
-    local dy="$4"
-    local outfile="$5"
+    local width="$1"
+    local angle="$2"
+    local dy="$3"
+    local outfile="$4"
+    shift 4
+    # Note: I've experienced problems with spaces in labels!
+    # To circumvent this, collect all remaining arguments as label.
+    local label="$@"
 
     local labelfile="_label.${group}.png"
     local size="${width}x$((width/10))"
     local pts="$((width*7/100))"
+
+    ${DBG} && echo "------------------------------"
+    ${DBG} && echo "$0 $@"
+    ${DBG} && echo "------------------------------"
+    ${DBG} && echo "label     : ${label}"
+    ${DBG} && echo "width     : ${width}"
+    ${DBG} && echo "angle     : ${angle}"
+    ${DBG} && echo "dy        : ${dy}"
+    ${DBG} && echo "outfile   : ${outfile}"
+    ${DBG} && echo "------------------------------"
+    ${DBG} && echo "labelfile : ${labelfile}"
+    ${DBG} && echo "size      : ${size}"
+    ${DBG} && echo "pts       : ${pts}"
+    ${DBG} && echo "------------------------------"
 
     convert -verbose                    \
         -size ${size}                   \
