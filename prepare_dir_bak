@@ -1,42 +1,56 @@
 #!/bin/bash
 
+option_list=("<TYPE>" "<DIR_NAME>" "<DO_BACKUP" "<USE_EXISTING>" "<VERBOSE>")
+USAGE="Usage: $(basename $0) ${option_list[@]}
+
+Prepare a directory and retain, remove, or back up a possible pre-existing directory of the same name.
+
+Options:
+ - TYPE: Short description used in prints, e.g. \"backup\" or \"output\".
+ - DIR: Name of the directory.
+ - DO_BACKUP (true|false): Retain a pre-existing directory of the same name as '*.bak'.
+ - USE_EXISTING (true|false): Retain a pre-existing directory as-is, including it's contents.
+ - VERBOSE (true|false): Print verbose output."
+
 main()
 {
-    local usage="usage: $(basename $0) <TYPE> <DIR> <DO_BACKUP> <SKIP_EXISTING> <VERBOSE>"
-
+    # Eval inargs
     local nargs_min=5
     if [[ $# -lt ${nargs_min} ]]
     then
-        echo "${usage}"
+        echo "${USAGE}"
         exit 1
     fi
-
     local type="$1"
-    local dir="$2"
+    local dirname="$2"
     local do_backup=$3
-    local skip_existing=$4
+    local use_existing=$4
     local verbose=$5
 
+    # Set verbosity flag for commands
     ${verbose} && vflag="-v" || vflag=""
 
-    if [[ -d "${dir}" ]]
+    # Handle pre-existing directory: skip, remove, or back it up
+    if [[ -d "${dirname}" ]]
     then
 
-        if ${skip_existing}
+        # Use the existing directory
+        if ${use_existing}
         then
             if ${verbose}
             then
-                echo "using existing ${type} directory: ${dir}"
+                echo "using existing ${type} directory: ${dirname}"
             fi
             return
         fi
 
+        # Retain a backup-copy of the existing directory
         if ${do_backup}
         then
-            bak="${dir}.bak"
+            bak="${dirname}.bak"
             if ${verbose}
             then
-                echo "warning: ${type} directory already exists: ${dir}" >&2
+                echo "warning: ${type} directory already exists: ${dirname}" >&2
                 echo "saving as ${bak}" >&2
             fi
             if [[ -d "${bak}" ]]
@@ -47,16 +61,20 @@ main()
                 fi
                 \rm -rf $vflag "$bak"
             fi
-            \mv -v "$dir" -T "$bak"
+            \mv -v "$dirname" -T "$bak"
+
+        # Remove the existing directory
         else
             if ${verbose}
             then
-                echo "warning: overwriting existing ${type} directory '${dir}'" >&2
+                echo "warning: overwriting existing ${type} directory '${dirname}'" >&2
             fi
-            \rm -rf $vflag "${dir}"
+            \rm -rf $vflag "${dirname}"
         fi
     fi
-    \mkdir $vflag "${dir}"
+
+    # Create the new directory
+    \mkdir $vflag "${dirname}"
 }
 
 main $@
