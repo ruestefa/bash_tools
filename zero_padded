@@ -1,0 +1,25 @@
+#!/bin/bash
+# by Stefan Ruedisuehli, 2015-08-21
+
+USAGE="$(basename $0) N NUMBER(S)
+ - N: length of returned padded numbers
+ - NUMBER(S): list of numbers to be zero-padded"
+
+main()
+{
+    # Eval inargs
+    nargs_min=2
+    if [[ $# -lt ${nargs_min} ]]
+    then
+        echo "${USAGE}"
+        exit 1
+    fi
+    local n="$1"
+    shift
+    local list=($@)
+
+    # Add leading zeros
+    printf "%0${n}i\n" ${list[@]}
+}
+
+main $@
