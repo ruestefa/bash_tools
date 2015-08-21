@@ -74,7 +74,7 @@ main()
     fi
 
     # Create the new directory
-    \mkdir $vflag "${dirname}"
+    \mkdir -p $vflag "${dirname}"
 }
 
 main $@
