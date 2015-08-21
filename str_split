@@ -1,0 +1,23 @@
+#!/bin/bash
+# by Stefan Ruedisuehli, 2015-08-21
+
+USAGE="Usage: $(basename $0) <DELIMITER> <STRING>
+
+Split a string into a list using a delimiter."
+
+main()
+{
+    narg=2
+    if [[ $# -ne $narg ]]
+    then
+        echo "${USAGE}"
+        exit 1
+    fi
+    local delim="$1"
+    local str="$2"
+
+    IFS="${delim}" read -ra LIST <<< "$str"
+    echo ${LIST[*]}
+}
+
+main $@
