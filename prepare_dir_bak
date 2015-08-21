@@ -1,0 +1,62 @@
+#!/bin/bash
+
+main()
+{
+    local usage="usage: $(basename $0) <TYPE> <DIR> <DO_BACKUP> <SKIP_EXISTING> <VERBOSE>"
+
+    local nargs_min=5
+    if [[ $# -lt ${nargs_min} ]]
+    then
+        echo "${usage}"
+        exit 1
+    fi
+
+    local type="$1"
+    local dir="$2"
+    local do_backup=$3
+    local skip_existing=$4
+    local verbose=$5
+
+    ${verbose} && vflag="-v" || vflag=""
+
+    if [[ -d "${dir}" ]]
+    then
+
+        if ${skip_existing}
+        then
+            if ${verbose}
+            then
+                echo "using existing ${type} directory: ${dir}"
+            fi
+            return
+        fi
+
+        if ${do_backup}
+        then
+            bak="${dir}.bak"
+            if ${verbose}
+            then
+                echo "warning: ${type} directory already exists: ${dir}" >&2
+                echo "saving as ${bak}" >&2
+            fi
+            if [[ -d "${bak}" ]]
+            then
+                if ${verbose}
+                then
+                    echo "warning: overwriting existing ${type} directory '${bak}'" >&2
+                fi
+                \rm -rf $vflag "$bak"
+            fi
+            \mv -v "$dir" -T "$bak"
+        else
+            if ${verbose}
+            then
+                echo "warning: overwriting existing ${type} directory '${dir}'" >&2
+            fi
+            \rm -rf $vflag "${dir}"
+        fi
+    fi
+    \mkdir $vflag "${dir}"
+}
+
+main $@
