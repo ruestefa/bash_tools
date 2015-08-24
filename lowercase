@@ -1,0 +1,23 @@
+#!/bin/bash
+# by Stefan Ruedisuehli, 2015-08-24
+
+USAGE="Usage: $(basename $0) <STRING(S)>
+
+Convert one or more strings to lowercase."
+
+main()
+{
+    local nargs_min=1
+    if [[ $# -lt ${nargs_min} ]]
+    then
+        echo "${USAGE}"
+        exit 1
+    fi
+
+    for str in $@
+    do
+        echo "${str}" | tr '[:upper:]' '[:lower:]'
+    done
+}
+
+main $@
