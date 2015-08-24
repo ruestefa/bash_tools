@@ -20,4 +20,4 @@ main()
     echo ${LIST[*]}
 }
 
-main $@
+main "$@"

@@ -18,4 +18,4 @@ main()
     grep -o "$ch" <<< "$str" | wc -l
 }
 
-main $@
+main "$@"

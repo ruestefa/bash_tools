@@ -55,4 +55,4 @@ echo "$1"
         PNG32:"${outfile}"
 }
 
-main $@
+main "$@"

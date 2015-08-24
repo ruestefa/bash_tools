@@ -21,14 +21,14 @@ main()
         echo "${USAGE}"
         exit 1
     fi
-    local type="$1"
+    local name="$1"
     local dirname="$2"
     local do_backup=$3
     local use_existing=$4
     local verbose=$5
 
     # Set verbosity flag for commands
-    ${verbose} && vflag="-v" || vflag=""
+    [[ "${verbose}" == "true" ]] && vflag="-v" || vflag=""
 
     # Handle pre-existing directory: skip, remove, or back it up
     if [[ -d "${dirname}" ]]
@@ -39,25 +39,25 @@ main()
         then
             if ${verbose}
             then
-                echo "using existing ${type} directory: ${dirname}"
+                echo "using existing ${name} directory: ${dirname}"
             fi
             return
         fi
 
         # Retain a backup-copy of the existing directory
-        if ${do_backup}
+        if [[ "${do_backup}" == "true" ]]
         then
             bak="${dirname}.bak"
             if ${verbose}
             then
-                echo "warning: ${type} directory already exists: ${dirname}" >&2
+                echo "warning: ${name} directory already exists: ${dirname}" >&2
                 echo "saving as ${bak}" >&2
             fi
             if [[ -d "${bak}" ]]
             then
                 if ${verbose}
                 then
-                    echo "warning: overwriting existing ${type} directory '${bak}'" >&2
+                    echo "warning: overwriting existing ${name} directory '${bak}'" >&2
                 fi
                 \rm -rf $vflag "$bak"
             fi
@@ -67,7 +67,7 @@ main()
         else
             if ${verbose}
             then
-                echo "warning: overwriting existing ${type} directory '${dirname}'" >&2
+                echo "warning: overwriting existing ${name} directory '${dirname}'" >&2
             fi
             \rm -rf $vflag "${dirname}"
         fi
@@ -77,4 +77,4 @@ main()
     \mkdir -p $vflag "${dirname}"
 }
 
-main $@
+main "$@"
