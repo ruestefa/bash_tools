@@ -8,11 +8,10 @@ USAGE="usage: $(basename $0) <WIDTH> <ANGLE> <DY> <OUTFILE> <LABEL>"
 main()
 {
     # Eval inargs
-    narg=5
-    if [[ $# -le ${narg} ]]
+    local narg_expected=5
+    if [[ $# -ne ${narg_expected} ]]
     then
         [[ $# -gt 0 ]] && echo "error: wrong arguments ($#/${narg_expected}): $@" >&2
-echo "$1"
         echo "${USAGE}"
         exit  1
     fi
@@ -20,10 +19,7 @@ echo "$1"
     local angle="$2"
     local dy="$3"
     local outfile="$4"
-    shift 4
-    # Note: I've experienced problems with spaces in labels!
-    # To circumvent this, collect all remaining arguments as label.
-    local label="$@"
+    local label="$5"
 
     local labelfile="_label.${group}.png"
     local size="${width}x$((width/10))"
