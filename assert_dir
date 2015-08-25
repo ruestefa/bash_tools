@@ -1,0 +1,43 @@
+#!/bin/bash
+# by Stefan Ruedisuehli, 2015-08-25
+
+FILE_CHECK=true
+
+USAGE="Usage: $(basename $0) <DIR(S)>
+
+Assert the existance of one or more directories."
+
+main()
+{
+    # Eval inargs
+    local narg_min=1
+    if [[ $# -lt ${narg_min} ]]
+    then
+        echo "${USAGE}"
+        exit 1
+    fi
+
+    # Check directories
+    local stat=0
+    for dir in "$@"
+    do
+        if [[ ! -d "${dir}" ]]
+        then
+            echo -n "error: directory not found: '${dir}'" >&2
+            if ${FILE_CHECK}
+            then
+                if [[ -f "${dir}" ]]
+                then
+                    echo -n " (is a file)" >&2
+                else
+                    echo -n " (is not a file, either)" >&2
+                fi
+            fi
+            echo
+            stat=1
+        fi
+    done
+    return ${stat}
+}
+
+main "$@"
