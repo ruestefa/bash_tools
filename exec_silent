@@ -32,7 +32,7 @@ main()
     # Success check
     if [[ $? -ne 0 ]]
     then
-        echo "error execution command: $@"
+        echo "error: exec_silent: $@"
         exit 1
     fi
 }
