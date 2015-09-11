@@ -30,10 +30,10 @@ main()
     fi
 
     # Success check
-    if [[ $? -ne 0 ]]
+    local stat=$?
+    if [[ ${stat} -ne 0 ]]
     then
-        echo "error: exec_silent: $@"
-        exit 1
+        exit ${stat}
     fi
 }
 
