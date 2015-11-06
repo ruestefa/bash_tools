@@ -15,6 +15,7 @@ main()
     assert_file "${infile}"
 
     set -x
+    # source: http://askubuntu.com/a/626301
     gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/default \
         -dNOPAUSE -dQUIET -dBATCH -dDetectDuplicateImages \
         -dCompressFonts=true -r150 -sOutputFile=
