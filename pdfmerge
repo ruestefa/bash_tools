@@ -1,0 +1,36 @@
+#!/bin/bash
+# src: http://stackoverflow.com/a/19358402/4419816
+
+main()
+{
+    infiles=("$@")
+    n=$((${#infiles[@]}-1))
+    outfile="${infiles[$n]}"
+    unset infiles[$n]
+
+    assert_file "${infiles[@]}"
+    [[ $? -ne 0 ]] && exit 1
+
+    if [[ -f "${outfile}" ]]
+    then
+        echo "Error: '${outfile}' already exists!" >&2
+        exit 1
+    fi
+
+    echo "PDFMERGE: ${infiles[@]} -> ${outfile}"
+
+    gs -q \
+        -dBATCH \
+        -dNOPAUSE \
+        -sDEVICE=pdfwrite \
+        -dPDFSETTINGS=/prepress \
+        -sOutputFile="${outfile}" \
+        "${infiles[@]}" >/dev/null 2>&1
+    if [[ $? -ne 0 ]]
+    then
+        echo "Errors occurred during merging!" >&2
+        exit 1
+    fi
+}
+
+main "$@"
