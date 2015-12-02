@@ -1,8 +1,15 @@
 #!/bin/bash
 # src: http://stackoverflow.com/a/19358402/4419816
 
+USAGE="Usage: $(basename "$0") <INFILE(S)> <OUTFILE>"
+
 main()
 {
+    if [[ $# -lt 2 ]]
+    then
+        echo "${USAGE}"
+        exit 1
+    fi
     infiles=("$@")
     n=$((${#infiles[@]}-1))
     outfile="${infiles[$n]}"
