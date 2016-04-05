@@ -1,6 +1,6 @@
 #!/bin/bash
 
-option_list=("<TYPE>" "<DIR_NAME>" "<DO_BACKUP" "<USE_EXISTING>" "<VERBOSE>")
+option_list=("TYPE" "DIR_NAME" "DO_BACKUP" "USE_EXISTING" "VERBOSE")
 USAGE="Usage: $(basename $0) ${option_list[@]}
 
 Prepare a directory and retain, remove, or back up a possible pre-existing directory of the same name.
@@ -9,7 +9,7 @@ Options:
  - TYPE: Short description used in prints, e.g. \"backup\" or \"output\".
  - DIR: Name of the directory.
  - DO_BACKUP (true|false): Retain a pre-existing directory of the same name as '*.bak'.
- - USE_EXISTING (true|false): Retain a pre-existing directory as-is, including it's contents.
+ - USE_EXISTING (true|false): Retain a pre-existing directory as-is, including its contents.
  - VERBOSE (true|false): Print verbose output."
 
 main()
