@@ -34,6 +34,12 @@ main()
             son) local range='\{09..11\}' ;;
         esac
         eval $(eval echo "${cmd//\{months\}/$range}")
+        local stat=$?
+        if [ $stat -ne 0 ]
+        then
+            echo "Abort: Command returned error code $stat" >&2
+            return $stat
+        fi
     done
 }
 
