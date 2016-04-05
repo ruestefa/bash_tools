@@ -14,12 +14,11 @@ command is run:
 
 Example:
 
- \$ $(basename $0) echo \\\$season \\\$SEASON foo_{months}.bar
- djf DJF 01 02 12
- mam MAM 03 04 05
- jja JJA 06 07 08
- son SON 09 10 11
-
+ \$ $(basename $0) echo \\\$season \\\$SEASON ({months})
+ djf DJF (01) (02) (12)
+ mam MAM (03) (04) (05)
+ jja JJA (06) (07) (08)
+ son SON (09) (10) (11)
 "
 
 main()
