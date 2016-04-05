@@ -1,0 +1,47 @@
+#!/bin/bash
+
+USAGE="Usage: $(basename $0) CMD
+
+Iterate over the months of all seasons. The command given as argument
+is executed as the body of a loop over the four seasons.
+
+Several special variables are provided, which are expanded when the
+command is run:
+
+ - \\\$season: Abbreviation of season in lower case.
+ - \\\$SEASON: Abbreviation of season in upper case.
+ - {months}: Expanded to the bash expressions like '{03..05}' for MAM.
+
+Example:
+
+ \$ $(basename $0) echo \\\$season \\\$SEASON foo_{months}.bar
+ djf DJF 01 02 12
+ mam MAM 03 04 05
+ jja JJA 06 07 08
+ son SON 09 10 11
+
+"
+
+main()
+{
+    local cmd="$*"
+    for season in djf mam jja son
+    do
+        local SEASON="${season^^}"
+        case $season in
+            djf) local range='\{01,02,12\}' ;;
+            mam) local range='\{03..05\}' ;;
+            jja) local range='\{06..08\}' ;;
+            son) local range='\{09..11\}' ;;
+        esac
+        eval $(eval echo "${cmd//\{months\}/$range}")
+    done
+}
+
+if [ $# -lt 1 ]
+then
+    echo "${USAGE}"
+    exit 1
+fi
+
+main "$@"
