@@ -1,0 +1,14 @@
+#!/bin/bash
+
+OPEN=exo-open
+
+main()
+{
+    local dir="$1"
+    local suffix=""
+    [[ $# -gt 1 ]] && suffix="$2"
+    local file="$(\ls -tr "${dir}"/*"${suffix}" | tail -1)"
+    ${OPEN} "${file}"
+}
+
+main "$@"
