@@ -1,7 +1,5 @@
 #!/bin/bash
 
-TEST_DIR="./test"
-
 LINE="========================================"
 
 USAGE="Usage: $(basename $0) <VERBOSITY[01]> [<EXPRESSION(S)>]
@@ -29,7 +27,9 @@ main()
     export PYTHONPATH=$PWD/lib:$PWD/test:$PYTHONPATH
 
     # Collect tests; make list global
-    TEST_LIST=($(collect_tests "${TEST_DIR}"))
+    local test_dir="."
+    [ -d "./test" ] && test_dir="./test"
+    TEST_LIST=($(collect_tests "${test_dir}"))
     ${VB1} && print_tests
 
     run_tests
@@ -38,8 +38,8 @@ main()
 
 collect_tests()
 {
-    local test_dir="$1"
-    local test_list=($(find_all_tests "${test_dir}"))
+    local test_dirs="$@"
+    local test_list=($(find_all_tests "${test_dirs}"))
 
     # Find and return all tests matching any expression
     if [[ "${#EXPR_LIST[@]}" -gt 0 ]]
@@ -77,8 +77,8 @@ collect_tests()
 
 find_all_tests()
 {
-    local test_dir="$1"
-    \find "${test_dir}" -name 'test_*.py' | \
+    local test_dirs="$@"
+    \find "${test_dirs}" -name 'test_*.py' | \
             \sed -e "s@${test_dir}/\(.*\).py@\1@" -e "s@/@.@g"
 }
 
