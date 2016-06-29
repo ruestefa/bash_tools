@@ -7,7 +7,7 @@ main()
     local dir="$1"
     local suffix=""
     [[ $# -gt 1 ]] && suffix="$2"
-    local file="$(\ls -tr "${dir}"/*"${suffix}" | tail -1)"
+    local file="$(\ls -dtr "${dir}"/*"${suffix}" | tail -1)"
     [[ "${file}" != "" ]] && ${OPEN} "${file}"
 }
 
