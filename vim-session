@@ -1,0 +1,12 @@
+#!/bin/bash
+
+EXE="vim"
+SESSION="./session"
+
+main()
+{
+    files=($(\cat "${SESSION}" | grep '^[^#]'))
+    ${EXE} "${files[@]}"
+}
+
+main "$@"
