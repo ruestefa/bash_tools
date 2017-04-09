@@ -1,15 +1,17 @@
 #!/bin/bash
 
-usage="usage: $0 START END COMMAND
+usage="usage: $0 START END INCREMENT COMMAND
 
-Loop over a range of dates in steps of hours (date format: YYYYMMDDHH i.e. %Y%m%d%H).
+Loop over a range of dates in steps increments of multiples of hours
+The expected date format is YYYYMMDDHH, i.e. %Y%m%d%H.
 To use the date components in the command, use $YYYY, $MM, $DD, and/or $HH."
 
 [ $# -lt 3 ] && { echo -e "${usage}"; exit 1; }
 
 date_start=$1
 date_end=$2
-shift 2
+increment=$3
+shift 3
 cmd="$@"
 
 # Check dates
@@ -19,12 +21,12 @@ echo "${date_end}" | grep -q '[12][0-9]\{3\}[01][0-9][0-3][0-9][012][0-9]'
 [ $? -ne 0 ] && echo "invalid end date ${date_end}, expect format YYYYMMDDHH i.e. %Y%m%d%H"
 
 # Loop over dates (dont use while loop to avoid infinite loop)
-date_curr="$(date +%Y%m%d%H -d "${date_start:0:8} ${date_start:8:2} - 1 hour")"
+date_curr="$(date +%Y%m%d%H -d "${date_start:0:8} ${date_start:8:2} - ${increment} hours")"
 iter_max=$((date_end - date_start))
 for iter_i in $(seq 0 $iter_max)
 do
     # Increment date
-    date_curr="$(date +%Y%m%d%H -d "${date_curr:0:8} ${date_curr:8:2} + 1 hour")"
+    date_curr="$(date +%Y%m%d%H -d "${date_curr:0:8} ${date_curr:8:2} + ${increment} hours")"
     yyyy=${date_curr:0:4}
     mm=${date_curr:4:2}
     dd=${date_curr:6:2}
