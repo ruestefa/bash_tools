@@ -4,7 +4,7 @@ usage="usage: $0 START END INCREMENT COMMAND
 
 Loop over a range of dates in steps increments of multiples of hours
 The expected date format is YYYYMMDDHH, i.e. %Y%m%d%H.
-To use the date components in the command, use $YYYY, $MM, $DD, and/or $HH."
+To use the date components in the command, use $DATE, $YYYY, $MM, $DD, and/or $HH."
 
 [ $# -lt 3 ] && { echo -e "${usage}"; exit 1; }
 
@@ -34,6 +34,7 @@ do
 
     # Insert date components in comment
     cmd_i="$(echo $cmd | sed \
+            -e "s/\${\?DATE}\?/${date_curr}/" \
             -e "s/\${\?YYYY}\?/${yyyy}/" \
             -e "s/\${\?MM}\?/${mm}/" \
             -e "s/\${\?DD}\?/${dd}/" \
