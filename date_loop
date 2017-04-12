@@ -4,9 +4,9 @@ usage="usage: $0 START END INCREMENT COMMAND
 
 Loop over a range of dates in steps increments of multiples of hours
 The expected date format is YYYYMMDDHH, i.e. %Y%m%d%H.
-To use the date components in the command, use $DATE, $YYYY, $MM, $DD, and/or $HH."
+To use the date components in the command, use \$DATE, \$YYYY, \$MM, \$DD, and/or \$HH."
 
-[ $# -lt 3 ] && { echo -e "${usage}"; exit 1; }
+[ $# -lt 3 ] && { echo -e "${usage}" >&2; exit 1; }
 
 date_start=$1
 date_end=$2
@@ -14,11 +14,15 @@ increment=$3
 shift 3
 cmd="$@"
 
-# Check dates
+# Check dates and increment
 echo "${date_start}" | grep -q '[12][0-9]\{3\}[01][0-9][0-3][0-9][012][0-9]'
-[ $? -ne 0 ] && echo "invalid start date ${date_start}, expect format YYYYMMDDHH i.e. %Y%m%d%H"
+err="invalid start date ${date_start}, expect format YYYYMMDDHH i.e. %Y%m%d%H"
+[ $? -ne 0 ] && { echo "${err}" >&2; exit 2; }
 echo "${date_end}" | grep -q '[12][0-9]\{3\}[01][0-9][0-3][0-9][012][0-9]'
-[ $? -ne 0 ] && echo "invalid end date ${date_end}, expect format YYYYMMDDHH i.e. %Y%m%d%H"
+err="invalid end date ${date_end}, expect format YYYYMMDDHH i.e. %Y%m%d%H"
+[ $? -ne 0 ] && { echo "${err}" >&2; exit 2; }
+err="invalid non-zero increment ${increment}"
+[ ${increment} -eq 0 ] && { echo "${err}" >&2; exit 2; }
 
 # Loop over dates (dont use while loop to avoid infinite loop)
 date_curr="$(date +%Y%m%d%H -d "${date_start:0:8} ${date_start:8:2} - ${increment} hours")"
@@ -34,13 +38,13 @@ do
 
     # Insert date components in comment
     cmd_i="$(echo $cmd | sed \
-            -e "s/\${\?DATE}\?/${date_curr}/" \
-            -e "s/\${\?YYYY}\?/${yyyy}/" \
-            -e "s/\${\?MM}\?/${mm}/" \
-            -e "s/\${\?DD}\?/${dd}/" \
-            -e "s/\${\?HH}\?/${hh}/")"
+            -e "s/\${\?DATE}\?/${date_curr}/g" \
+            -e "s/\${\?YYYY}\?/${yyyy}/g" \
+            -e "s/\${\?MM}\?/${mm}/g" \
+            -e "s/\${\?DD}\?/${dd}/g" \
+            -e "s/\${\?HH}\?/${hh}/g")"
 
-    # Run command
+    # Execute command
     eval $cmd_i || exit $?
 
     # Are we done yet?
