@@ -21,12 +21,12 @@ echo "${date_end}" | grep -q '[12][0-9]\{3\}[01][0-9][0-3][0-9][012][0-9]'
 [ $? -ne 0 ] && echo "invalid end date ${date_end}, expect format YYYYMMDDHH i.e. %Y%m%d%H"
 
 # Loop over dates (dont use while loop to avoid infinite loop)
-date_curr="$(date +%Y%m%d%H -d "${date_start:0:8} ${date_start:8:2} - ${increment} hours")"
+date_curr="$(TZ=UTC date +%Y%m%d%H -d "${date_start:0:8} ${date_start:8:2} - ${increment} hours")"
 iter_max=$((date_end - date_start))
 for iter_i in $(seq 0 $iter_max)
 do
     # Increment date
-    date_curr="$(date +%Y%m%d%H -d "${date_curr:0:8} ${date_curr:8:2} + ${increment} hours")"
+    date_curr="$(TZ=UTC date +%Y%m%d%H -d "${date_curr:0:8} ${date_curr:8:2} + ${increment} hours")"
     yyyy=${date_curr:0:4}
     mm=${date_curr:4:2}
     dd=${date_curr:6:2}
