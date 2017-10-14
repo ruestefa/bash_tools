@@ -27,12 +27,12 @@ err="invalid non-zero increment ${increment}"
 [ ${increment} -eq 0 ] && { echo "${err}" >&2; exit 2; }
 
 # Loop over dates (dont use while loop to avoid infinite loop)
-date_curr="$(date +%Y%m%d%H -d "${date_start:0:8} ${date_start:8:2} - ${increment} hours")"
+date_curr="$(TZ=UTC date +%Y%m%d%H -d "${date_start:0:8} ${date_start:8:2} - ${increment} hours")"
 iter_max=$((date_end - date_start))
 for iter_i in $(seq 0 $iter_max)
 do
     # Increment date
-    date_curr="$(date +%Y%m%d%H -d "${date_curr:0:8} ${date_curr:8:2} + ${increment} hours")"
+    date_curr="$(TZ=UTC date +%Y%m%d%H -d "${date_curr:0:8} ${date_curr:8:2} + ${increment} hours")"
     yyyy=${date_curr:0:4}
     mm=${date_curr:4:2}
     dd=${date_curr:6:2}
