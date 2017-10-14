@@ -2,7 +2,7 @@
 
 usage="usage: $0 START END INCREMENT COMMAND
 
-Loop over a range of dates in steps increments of multiples of hours
+Loop over a range of dates (UTC) in steps increments of multiples of hours
 The expected date format is YYYYMMDDHH, i.e. %Y%m%d%H.
 To use the date components in the command, use \$DATE, \$YYYY, \$MM, \$DD, and/or \$HH."
 
@@ -13,6 +13,8 @@ date_end=$2
 increment=$3
 shift 3
 cmd="$@"
+
+export TZ=UTC
 
 # Check dates and increment
 echo "${date_start}" | grep -q '[12][0-9]\{3\}[01][0-9][0-3][0-9][012][0-9]'
