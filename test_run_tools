@@ -1,0 +1,266 @@
+#!/bin/bash
+
+source run_tools
+
+tests=()
+
+#===============================================================================
+
+test_month_days()
+{
+    # Invalid input
+    month_days          && return 1
+    month_days 01       && return 2
+    month_days 200700   && return 3
+    month_days 200713   && return 4
+
+    # Regular year
+    [ "$(month_days 200701)" == "31" ] || return 101
+    [ "$(month_days 200702)" == "28" ] || return 102
+    [ "$(month_days 200703)" == "31" ] || return 103
+    [ "$(month_days 200704)" == "30" ] || return 104
+    [ "$(month_days 200705)" == "31" ] || return 105
+    [ "$(month_days 200706)" == "30" ] || return 106
+    [ "$(month_days 200707)" == "31" ] || return 107
+    [ "$(month_days 200708)" == "31" ] || return 108
+    [ "$(month_days 200709)" == "30" ] || return 109
+    [ "$(month_days 200710)" == "31" ] || return 110
+    [ "$(month_days 200711)" == "30" ] || return 111
+    [ "$(month_days 200712)" == "31" ] || return 112
+
+    # Leap years
+    [ "$(month_days 199602)" == "29" ] || return 201
+    [ "$(month_days 199702)" == "28" ] || return 202
+    [ "$(month_days 199802)" == "28" ] || return 203
+    [ "$(month_days 199902)" == "28" ] || return 204
+    [ "$(month_days 200002)" == "29" ] || return 205
+    [ "$(month_days 200102)" == "28" ] || return 206
+    [ "$(month_days 200202)" == "28" ] || return 207
+    [ "$(month_days 200302)" == "28" ] || return 208
+    [ "$(month_days 200402)" == "29" ] || return 209
+    [ "$(month_days 200502)" == "28" ] || return 210
+    [ "$(month_days 200602)" == "28" ] || return 211
+    [ "$(month_days 200702)" == "28" ] || return 212
+    [ "$(month_days 200802)" == "29" ] || return 213
+    [ "$(month_days 200902)" == "28" ] || return 214
+    [ "$(month_days 201002)" == "28" ] || return 215
+    [ "$(month_days 201102)" == "28" ] || return 216
+    [ "$(month_days 201202)" == "29" ] || return 217
+    [ "$(month_days 201302)" == "28" ] || return 218
+    [ "$(month_days 201402)" == "28" ] || return 219
+    [ "$(month_days 201502)" == "28" ] || return 220
+
+    return 0
+}
+tests+=(month_days)
+
+#===============================================================================
+
+test_datetime_is()
+{
+
+    # Not implemented formats
+    datetime_is mm       04       ; [ $? -ne 2 ] && return  1
+    datetime_is dd       20       ; [ $? -ne 2 ] && return  2
+    datetime_is hh       15       ; [ $? -ne 2 ] && return  3
+    datetime_is nn       45       ; [ $? -ne 2 ] && return  4
+    datetime_is mmdd     0420     ; [ $? -ne 2 ] && return  5
+    datetime_is mmddhh   042015   ; [ $? -ne 2 ] && return  6
+    datetime_is mmddhhnn 04201545 ; [ $? -ne 2 ] && return  7
+    datetime_is ddhh     2015     ; [ $? -ne 2 ] && return  8
+    datetime_is ddhhnn   201545   ; [ $? -ne 2 ] && return  9
+    datetime_is hhnn     1545     ; [ $? -ne 2 ] && return 10
+
+    # Year
+    datetime_is yyyy                        && return 110
+    datetime_is yyyy 1984                   || return 111
+    datetime_is yyyy 2007                   || return 112
+    datetime_is yyyy 3007                   && return 113
+    datetime_is yyyy 200712                 && return 114
+
+    # Month
+    datetime_is yyyymm                      && return 120
+    datetime_is yyyymm 200703               || return 121
+    datetime_is yyyymm 200710               || return 122
+    datetime_is yyyymm 200700               && return 123
+    datetime_is yyyymm 200713               && return 124
+    datetime_is yyyymm 20071301             && return 125
+
+    # Day
+    datetime_is yyyymmdd                    && return 130
+    datetime_is yyyymmdd 20070304           || return 131
+    datetime_is yyyymmdd 20070321           || return 132
+    datetime_is yyyymmdd 20070331           || return 133
+    datetime_is yyyymmdd 20070300           && return 134
+    datetime_is yyyymmdd 20070332           && return 135
+    datetime_is yyyymmdd 2007032123         && return 136
+
+    # Hour
+    datetime_is yyyymmddhh                  && return 140
+    datetime_is yyyymmddhh 2007032100       || return 141
+    datetime_is yyyymmddhh 2007032107       || return 142
+    datetime_is yyyymmddhh 2007032123       || return 143
+    datetime_is yyyymmddhh 2007032124       && return 144
+    datetime_is yyyymmddhh 200703212406     && return 145
+
+    # Minute
+    datetime_is yyyymmddhhnn                && return 150
+    datetime_is yyyymmddhhnn 200703210000   || return 151
+    datetime_is yyyymmddhhnn 200703210005   || return 152
+    datetime_is yyyymmddhhnn 200703210018   || return 153
+    datetime_is yyyymmddhhnn 200703210023   || return 154
+    datetime_is yyyymmddhhnn 200703210036   || return 155
+    datetime_is yyyymmddhhnn 200703210045   || return 156
+    datetime_is yyyymmddhhnn 200703210059   || return 157
+    datetime_is yyyymmddhhnn 200703210060   && return 158
+    datetime_is yyyymmddhhnn 20070321006003 && return 159
+
+    # Invalid datetimes that are not recognized as such
+    datetime_is yyyymmdd 20070229           || return 301
+
+    return 0
+}
+tests+=(datetime_is)
+
+#===============================================================================
+
+test_datetime_get_start_end()
+{
+    local res sol
+
+    #-- Year
+
+    res=$(datetime_get_start_end 2007 yyyy) || return 101
+    [ "${res}" == "2007 2007" ] || return 102
+
+    res=$(datetime_get_start_end 2007 yyyymm) || return 103
+    [ "${res}" == "200701 200712" ] || return 104
+
+    res=$(datetime_get_start_end 2007 yyyymmdd) || return 105
+    [ "${res}" == "20070101 20071231" ] || return 106
+
+    res=$(datetime_get_start_end 2007 yyyymmddhh) || return 107
+    [ "${res}" == "2007010100 2007123123" ] || return 108
+
+    res=$(datetime_get_start_end 2007 yyyymmddhhnn) || return 109
+    [ "${res}" == "200701010000 200712312359" ] || return 110
+
+    #-- Month
+
+    res=$(datetime_get_start_end 200701 yyyymm) || return 111
+    [ "${res}" == "200701 200701" ] || return 112
+
+    res=$(datetime_get_start_end 200701 yyyymmdd) || return 113
+    [ "${res}" == "20070101 20070131" ] || return 114
+
+    res=$(datetime_get_start_end 200802 yyyymmdd) || return 115
+    [ "${res}" == "20080201 20080229" ] || return 116
+
+    res=$(datetime_get_start_end 200701 yyyymmddhh) || return 117
+    [ "${res}" == "2007010100 2007013123" ] || return 118
+
+    res=$(datetime_get_start_end 200701 yyyymmddhhnn) || return 119
+    [ "${res}" == "200701010000 200701312359" ] || return 120
+
+    #-- Day
+
+    res=$(datetime_get_start_end 20070115 yyyymmdd) || return 121
+    [ "${res}" == "20070115 20070115" ] || return 122
+
+    res=$(datetime_get_start_end 20070115 yyyymmddhh) || return 123
+    [ "${res}" == "2007011500 2007011523" ] || return 124
+
+    res=$(datetime_get_start_end 20070115 yyyymmddhhnn) || return 125
+    [ "${res}" == "200701150000 200701152359" ] || return 126
+
+    #-- Hour
+
+    res=$(datetime_get_start_end 2007011518 yyyymmddhh) || return 127
+    [ "${res}" == "2007011518 2007011518" ] || return 128
+
+    res=$(datetime_get_start_end 2007011518 yyyymmddhhnn) || return 127
+    [ "${res}" == "200701151800 200701151859" ] || return 128
+
+    #-- Minute
+
+    res=$(datetime_get_start_end 200701151845 yyyymmddhhnn) || return 127
+    [ "${res}" == "200701151845 200701151845" ] || return 128
+
+    return 0
+}
+tests+=(datetime_get_start_end)
+
+#===============================================================================
+
+test_datetime_expand_format()
+{
+    local res sol
+
+    res=$(datetime_expand_format yyyymmdd 200701) || return 101
+    [ "${res}" == "20070101 20070131" ] || return 102
+
+    res=$(datetime_expand_format yyyymmddhh 200701) || return 103
+    [ "${res}" == "2007010100 2007013123" ] || return 104
+
+    res=$(datetime_expand_format yyyymmddhhnn 200701) || return 105
+    [ "${res}" == "200701010000 200701312359" ] || return 106
+
+    res=$(datetime_expand_format yyyymmddhh 200701-200704) || return 107
+    [ "${res}" == "2007010100 2007043023" ] || return 108
+
+    res=$(datetime_expand_format yyyymmddhh 200712-200802) || return 109
+    [ "${res}" == "2007120100 2008022923" ] || return 110
+
+    res=$(datetime_expand_format yyyymmddhh 200712-200802 "/") || return 111
+    [ "${res}" == "2007120100/2008022923" ] || return 112
+
+    return 0
+    return 0
+}
+tests+=(datetime_expand_format)
+
+#===============================================================================
+
+test_expand_month_datetime_lists_ranges()
+{
+    local res sol
+    local cmd=expand_month_datetime_lists_ranges
+
+    res=$(${cmd} yyyymmddhh 200703-200705) || return 101
+    [ "${res}" == "2007030100-2007053123" ] || return 102
+
+    res=$(${cmd} yyyymmddhh 200712+200701-200702) || return 103
+    [ "${res}" == "2007120100-2007123123,2007010100-2007022823" ] || return 104
+
+    res=$(${cmd} yyyymmdd 2003+2006 200703-200705 200712+200701-200702) || return 105
+    sol="20030101-20031231,20060101-20061231 20070301-20070531 20071201-20071231,20070101-20070228"
+    [ "${res}" ==  "${sol}" ] || return 106
+
+    return 0
+}
+tests+=(expand_month_datetime_lists_ranges)
+
+#===============================================================================
+
+print_result()
+{
+    local name=$1
+    local stat=$2
+    if [ ${stat} -eq 0 ]
+    then
+        echo " [  OK  ] ${name}"
+    else
+        echo " [ FAIL ] ${name} (${stat})"
+    fi
+}
+
+#===============================================================================
+
+for test in ${tests[@]}
+do
+    test_${test}
+    print_result ${test} $?
+done
+
+#===============================================================================
+
