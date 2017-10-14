@@ -236,6 +236,8 @@ test_expand_month_datetime_lists_ranges()
     sol="20030101-20031231,20060101-20061231 20070301-20070531 20071201-20071231,20070101-20070228"
     [ "${res}" ==  "${sol}" ] || return 106
 
+    ${cmd} yyyymmdd 03 && return 107
+
     return 0
 }
 tests+=(expand_month_datetime_lists_ranges)

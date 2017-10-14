@@ -99,13 +99,20 @@ expand_month_datetime_lists_ranges()
     shift 1
     local exprs=$@
 
-    local tss_all=''
+    local tss_all='' format_source subformat
     for expr in ${exprs[@]}
     do
         local tss_expr=""
         for element in ${expr//+/ }
         do
-            local tss_i=$(datetime_expand_format ${format_target} ${element} "-") || return $?
+            # Ensure source is a subformat of target
+            local e0="$(echo ${element} | grep -o '^\w\+')"
+            format_source="$(datetime_find_format ${e0})" || return 3
+            subformat="${format_target:0:${#format_source}}"
+            [ "${format_source}" == "${subformat}" ] || return 4
+
+            local tss_i=$(datetime_expand_format ${format_target} ${element} \
+                    "-") || return $?
             tss_expr+=",${tss_i}"
         done
         tss_all+=" ${tss_expr:1}" # remove leading comma
