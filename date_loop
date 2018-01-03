@@ -3,8 +3,8 @@
 usage="usage: $0 START END INCREMENT COMMAND
 
 Loop over a range of dates (UTC) in steps increments of multiples of hours
-The expected date format is YYYYMMDDHH, i.e. %Y%m%d%H.
-To use the date components in the command, use \$DATE, \$YYYY, \$MM, \$DD, and/or \$HH."
+The expected date format is YYYYMMDDHH[NN], i.e., %Y%m%d%H or %Y%m%d%H%M.
+To use the date components in the command, use \$DATE, \$YYYY, \$MM, \$DD, \$HH, and/or \$NN."
 
 [ $# -lt 3 ] && { echo -e "${usage}" >&2; exit 1; }
 
@@ -16,38 +16,66 @@ cmd="$@"
 
 export TZ=UTC
 
+# Determine resolution based on start date length
+case ${#date_start} in
+    10) res=hour;;
+    12) res=minute;;
+    * ) echo "invalid start datetime ${date_start} string of length ${#date_start}" >&2; exit 2;;
+esac
+
 # Check dates and increment
-echo "${date_start}" | grep -q '[12][0-9]\{3\}[01][0-9][0-3][0-9][012][0-9]'
-err="invalid start date ${date_start}, expect format YYYYMMDDHH i.e. %Y%m%d%H"
-[ $? -ne 0 ] && { echo "${err}" >&2; exit 2; }
-echo "${date_end}" | grep -q '[12][0-9]\{3\}[01][0-9][0-3][0-9][012][0-9]'
-err="invalid end date ${date_end}, expect format YYYYMMDDHH i.e. %Y%m%d%H"
-[ $? -ne 0 ] && { echo "${err}" >&2; exit 2; }
+if [ "${res}" == "hour" ]
+then
+    echo "${date_start}" | grep -q '[12][0-9]\{3\}[01][0-9][0-3][0-9][012][0-9]'
+    err="invalid start date ${date_start} for length 10, expect format YYYYMMDDHH, i.e., %Y%m%d%H"
+    [ $? -ne 0 ] && { echo "${err}" >&2; exit 2; }
+    echo "${date_end}" | grep -q '[12][0-9]\{3\}[01][0-9][0-3][0-9][012][0-9]'
+    err="invalid end date ${date_end} for length 10, expect format YYYYMMDDHH, i.e., %Y%m%d%H"
+    [ $? -ne 0 ] && { echo "${err}" >&2; exit 2; }
+elif [ "${res}" == "minute" ]
+then
+    echo "${date_start}" | grep -q '[12][0-9]\{3\}[01][0-9][0-3][0-9][012][0-9][0-5][0-9]'
+    err="invalid start date ${date_start} for length 12, expect format YYYYMMDDHHNN, i.e., %Y%m%d%H%M"
+    [ $? -ne 0 ] && { echo "${err}" >&2; exit 2; }
+    echo "${date_end}" | grep -q '[12][0-9]\{3\}[01][0-9][0-3][0-9][012][0-9][0-5][0-9]'
+    err="invalid end date ${date_end} for length 12, expect format YYYYMMDDHHNN, i.e., %Y%m%d%H%M"
+    [ $? -ne 0 ] && { echo "${err}" >&2; exit 2; }
+else
+    echo "invalid start date ${date_start} of length ${#date_start}" >&2; exit 2
+fi
 err="invalid non-zero increment ${increment}"
 [ ${increment} -eq 0 ] && { echo "${err}" >&2; exit 2; }
 
 # Loop over dates (dont use while loop to avoid infinite loop)
-date_curr="$(TZ=UTC date +%Y%m%d%H -d "${date_start:0:8} ${date_start:8:2} - ${increment} hours")"
+case ${res} in
+    hour    ) date_curr="$(TZ=UTC date +%Y%m%d%H -d "${date_start:0:8} ${date_start:8:2} - ${increment} hours")";;
+    minute  ) date_curr="$(TZ=UTC date +%Y%m%d%H%M -d "${date_start:0:8} ${date_start:8:4} - ${increment} minutes")";;
+esac
 iter_max=$((date_end - date_start))
 for iter_i in $(seq 0 $iter_max)
 do
     # Increment date
-    date_curr="$(TZ=UTC date +%Y%m%d%H -d "${date_curr:0:8} ${date_curr:8:2} + ${increment} hours")"
+    case ${res} in
+        hour    ) date_curr="$(TZ=UTC date +%Y%m%d%H -d "${date_curr:0:8} ${date_curr:8:2} + ${increment} hours")";;
+        minute  ) date_curr="$(TZ=UTC date +%Y%m%d%H%M -d "${date_curr:0:8} ${date_curr:8:4} + ${increment} minutes")";;
+    esac
     yyyy=${date_curr:0:4}
     mm=${date_curr:4:2}
     dd=${date_curr:6:2}
     hh=${date_curr:8:2}
+    nn=${date_curr:10:2}
 
     # Insert date components in comment
-    cmd_i="$(echo $cmd | sed \
+    cmd_i="$(echo ${cmd} | sed \
             -e "s/\${\?DATE}\?/${date_curr}/g" \
             -e "s/\${\?YYYY}\?/${yyyy}/g" \
             -e "s/\${\?MM}\?/${mm}/g" \
             -e "s/\${\?DD}\?/${dd}/g" \
-            -e "s/\${\?HH}\?/${hh}/g")"
+            -e "s/\${\?HH}\?/${hh}/g" \
+            -e "s/\${\?NN}\?/${nn}/g")"
 
     # Execute command
-    eval $cmd_i || exit $?
+    eval ${cmd_i} || exit $?
 
     # Are we done yet?
     [ "${date_curr}" == "${date_end}" ] && break
