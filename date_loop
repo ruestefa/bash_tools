@@ -78,7 +78,7 @@ do
     eval ${cmd_i} || exit $?
 
     # Are we done yet?
-    [ ${date_curr} >= ${date_end} ] && break
+    [ ${date_curr} -ge ${date_end} ] && break
 done
 
 
