@@ -8,7 +8,11 @@ main()
     local suffix=""
     [[ $# -gt 1 ]] && suffix="$2"
     local file="$(\ls -dtr "${dir}"/*"${suffix}" | tail -1)"
-    [[ "${file}" != "" ]] && ${OPEN} "${file}"
+    if [[ "${file}" != "" ]]
+    then
+        echo "${OPEN}" "${file}"
+        ${OPEN} "${file}"
+    fi
 }
 
 main "$@"
