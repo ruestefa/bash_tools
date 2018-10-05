@@ -1,26 +1,62 @@
 #!/bin/bash
 
-usage="usage: $0 START END INCREMENT COMMAND
+usage="usage: $0 START END INCREMENT COMMAND [-v]
 
-Loop over a range of dates (UTC) in steps increments of multiples of hours
-The expected date format is YYYYMMDDHH[NN], i.e., %Y%m%d%H or %Y%m%d%H%M.
-To use the date components in the command, use \$DATE, \$YYYY, \$MM, \$DD, \$HH, and/or \$NN."
+Loop over a range of dates (UTC) in steps increments of multiples of hours.
 
-[ $# -lt 3 ] && { echo -e "${usage}" >&2; exit 1; }
+Positional arguments:
 
-date_start=$1
-date_end=$2
-increment=$3
-shift 3
-cmd="$@"
+    START END
+        Start and end timesteps, inclusive (YYYYMMDDHH[NN], i.e., %Y%m%d%H[%M]).
 
+    INCREMENT
+        Timestep increment in the smallest timestep unit, e.g., minutes for *%M.
+
+    COMMAND
+        The command executed for each timestep. To use the datetime components,
+        add them as escaped variables (\$DATE, \$YYYY, \$MM, \$DD, \$HH, \$NN).
+
+Optional arguments:
+
+    -v
+        Print the current timestep for each iteration.
+"
+debug=false
+
+# Set defaults
+verbose=false
+
+# Parse command line arguments
+i=0
+n=0
+for arg in "${@}"
+do
+    i=$((i+1))
+    $debug && echo "${i} ${arg}" >&2
+    case "${arg}" in
+        "-v") verbose=true ;;
+        *)  n=$((n+1))
+            case "${n}" in
+                1) date_start="${arg}" ;;
+                2) date_end="${arg}" ;;
+                3) increment="${arg}" ;;
+                4) cmd="${arg}" ;;
+            esac
+        ;;
+    esac
+done
+[ ${n} -ne 4 ] && { echo -e "error: wrong number of positional arguments: ${n}\n\n${usage}" >&2; exit 2; }
+
+# Set timezone to UTC to avoid winter-/summertime change issues
 export TZ=UTC
 
 # Determine resolution based on start date length
 case ${#date_start} in
     10) res=hour;;
     12) res=minute;;
-    * ) echo "invalid start datetime ${date_start} string of length ${#date_start}" >&2; exit 2;;
+    *)  echo "invalid start datetime ${date_start} string of length ${#date_start}" >&2
+        exit 2
+    ;;
 esac
 
 # Check dates and increment
@@ -47,23 +83,23 @@ err="invalid non-zero increment ${increment}"
 [ ${increment} -eq 0 ] && { echo "${err}" >&2; exit 2; }
 
 # Loop over dates (dont use while loop to avoid infinite loop)
-case ${res} in
-    hour    ) date_curr="$(TZ=UTC date +%Y%m%d%H -d "${date_start:0:8} ${date_start:8:2} - ${increment} hours")";;
-    minute  ) date_curr="$(TZ=UTC date +%Y%m%d%H%M -d "${date_start:0:8} ${date_start:8:4} - ${increment} minutes")";;
+case "${res}" in
+    "hour"  ) date_curr="$(TZ=UTC date +%Y%m%d%H   -d "${date_start:0:8} ${date_start:8:2} - ${increment} hours")" ;;
+    "minute") date_curr="$(TZ=UTC date +%Y%m%d%H%M -d "${date_start:0:8} ${date_start:8:4} - ${increment} minutes")" ;;
 esac
 iter_max=$((date_end - date_start))
 for iter_i in $(seq 0 $iter_max)
 do
     # Increment date
-    case ${res} in
-        hour    ) date_curr="$(TZ=UTC date +%Y%m%d%H -d "${date_curr:0:8} ${date_curr:8:2} + ${increment} hours")";;
-        minute  ) date_curr="$(TZ=UTC date +%Y%m%d%H%M -d "${date_curr:0:8} ${date_curr:8:4} + ${increment} minutes")";;
+    case "${res}" in
+        "hour"  ) date_curr="$(TZ=UTC date +%Y%m%d%H   -d "${date_curr:0:8} ${date_curr:8:2} + ${increment} hours")";;
+        "minute") date_curr="$(TZ=UTC date +%Y%m%d%H%M -d "${date_curr:0:8} ${date_curr:8:4} + ${increment} minutes")";;
     esac
-    yyyy=${date_curr:0:4}
-    mm=${date_curr:4:2}
-    dd=${date_curr:6:2}
-    hh=${date_curr:8:2}
-    nn=${date_curr:10:2}
+    yyyy="${date_curr:0:4}"
+    mm="${date_curr:4:2}"
+    dd="${date_curr:6:2}"
+    hh="${date_curr:8:2}"
+    nn="${date_curr:10:2}"
 
     # Insert date components in comment
     cmd_i="$(echo ${cmd} | sed \
@@ -74,11 +110,13 @@ do
             -e "s/\${\?HH}\?/${hh}/g" \
             -e "s/\${\?NN}\?/${nn}/g")"
 
+    # Print current timestep if requested
+    ${verbose} && echo "${date_curr}"
+
     # Execute command
-    eval ${cmd_i} || exit $?
+    eval ${cmd_i} || exit ${?}
 
     # Are we done yet?
     [ ${date_curr} -ge ${date_end} ] && break
 done
-
 
