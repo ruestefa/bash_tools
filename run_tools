@@ -5,7 +5,7 @@
 # Get days of month
 #
 # Arguments:
-#   $1 month in {01..12}
+#   $1 yyyymm
 #
 month_days()
 {
@@ -83,7 +83,7 @@ expand_padded_number_range()
 
 #===============================================================================
 #
-# Expand multiple list/range expressions of months or datetimes
+# Expand multiple list/range expressions of datetimes
 #
 # For each element, start and end datetime tuples (separated by a dash)
 # are returned as a comma-separated list, e.g., for 200712+200701-200702
@@ -127,7 +127,7 @@ expand_month_datetime_lists_ranges()
 # Arguments:
 #   $1 datetime target format, e.g., yyyymmddhh, yymm
 #   $2 datetime or range of datetimes, e.g., 200701 or 20070300-20070502
-#   $3 separator, e.g., - or , (optional)
+#   $3 separator, e.g., '-' or ',' (optional)
 #
 datetime_expand_format()
 {
