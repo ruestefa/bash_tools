@@ -101,6 +101,9 @@ do
     hh="${date_curr:8:2}"
     nn="${date_curr:10:2}"
 
+    # Are we done yet?
+    [ ${date_curr} -gt ${date_end} ] && break
+
     # Insert date components in comment
     cmd_i="$(echo ${cmd} | sed \
             -e "s/\${\?DATE}\?/${date_curr}/g" \
@@ -115,8 +118,5 @@ do
 
     # Execute command
     eval ${cmd_i} || exit ${?}
-
-    # Are we done yet?
-    [ ${date_curr} -ge ${date_end} ] && break
 done
 
