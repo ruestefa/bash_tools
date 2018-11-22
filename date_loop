@@ -20,6 +20,9 @@ Optional arguments:
 
     -v [N=1]
         Print the current timestep for Nth iteration (N in [1..999]).
+
+    -p N
+        Parallelize over N processes at a time (N in [1..99]).
 "
 debug=false
 
@@ -29,6 +32,7 @@ verbose=false
 # Parse command line arguments
 i=0
 n=0
+num_procs=1
 args=("${@}")
 for ((i = 0; i < ${#args[@]}; i++))
 do
@@ -39,6 +43,12 @@ do
             verbose=true
             echo "${args[i+1]}" | grep -q '^[1-9][0-9]\{,2\}$'
             [ ${?} -eq 0 ] && { i=$((i+1)); vb_n=${args[i]}; } || vb_n=1
+        ;;
+        "-p")
+            echo "${args[i+1]}" | grep -q '^[1-9][0-9]\?$'
+            [ ${?} -ne 0 ] && { echo "'-p' not followed by number of processes" >&2; exit 4; }
+            i=$((i+1))
+            num_procs=${args[i]}
         ;;
         *)
             n=$((n+1))
@@ -123,6 +133,13 @@ do
     ${verbose} && [ $((iter_i%vb_n)) -eq 0 ] && echo "${date_curr}"
 
     # Execute command
-    eval ${cmd_i} || exit ${?}
+    if [ ${num_procs} -eq 1 ]
+    then
+        eval ${cmd_i} || exit ${?}
+    else
+        { eval ${cmd_i} || { trap "exit" INT TERM; trap "kill 0" EXIT; }; } &
+    fi
+    [ $((iter_i%num_procs)) -eq 0 ] && wait
 done
+wait
 
