@@ -98,11 +98,14 @@ fi
 err="invalid non-zero increment ${increment}"
 [ ${increment} -eq 0 ] && { echo "${err}" >&2; exit 2; }
 
-# Loop over dates (dont use while loop to avoid infinite loop)
+# Determine start date
 case "${res}" in
     "hour"  ) date_curr="$(TZ=UTC date +%Y%m%d%H   -d "${date_start:0:8} ${date_start:8:2} - ${increment} hours")" ;;
     "minute") date_curr="$(TZ=UTC date +%Y%m%d%H%M -d "${date_start:0:8} ${date_start:8:4} - ${increment} minutes")" ;;
 esac
+
+# Loop over dates (dont use while loop to avoid infinite loop)
+pids_active=()
 iter_max=$((date_end - date_start))
 for iter_i in $(seq 0 $iter_max)
 do
@@ -133,13 +136,36 @@ do
     ${verbose} && [ $((iter_i%vb_n)) -eq 0 ] && echo "${date_curr}"
 
     # Execute command
-    if [ ${num_procs} -eq 1 ]
+    eval ${cmd_i} &
+    pids_active+=(${!})
+
+    # Once N processes have been started in the background,
+    # wait for them to finish before starting new ones
+    # For sequential execution, this is simply done every timestep
+    if [ $(((iter_i + 1)%num_procs)) -eq 0 ]
     then
-        eval ${cmd_i} || exit ${?}
-    else
-        { eval ${cmd_i} || { trap "exit" INT TERM; trap "kill 0" EXIT; }; } &
+        # Wait in turn for each active process
+        # Count the number of failed processes
+        # Even if one fails, the others can finish
+        nerr=0
+        for pid in ${pids_active[@]}
+        do
+            wait ${pid} || {
+                echo "ERROR (${?}) ${pid}" >&2
+                nerr=$((nerr + 1))
+            }
+        done
+
+        # In case of failed processes, abort execution
+        if [ ${nerr} -gt 0 ]
+        then
+            echo "ABORT (${nerr}/${num_procs})" >&2
+            exit ${nerr}
+        fi
+
+        # Reset the PIDs array
+        pics_active=()
     fi
-    [ $((iter_i%num_procs)) -eq 0 ] && wait
 done
 wait
 
