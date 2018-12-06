@@ -106,6 +106,7 @@ esac
 
 # Loop over dates (dont use while loop to avoid infinite loop)
 pids_active=()
+dates_active=()
 iter_max=$((date_end - date_start)) # bigger than actual number of iterations
 for iter_i in $(seq 0 $iter_max)
 do
@@ -138,6 +139,7 @@ do
     # Execute command
     eval ${cmd_i} &
     pids_active[iter_i%num_procs]=${!}
+    dates_active[iter_i%num_procs]=${date_curr}
 
     # Once N processes have been started in the background,
     # wait for them to finish before starting new ones
@@ -151,11 +153,12 @@ do
         for (( i=0; i<${num_procs}; i++ ))
         do
             pid=${pids_active[i]}
+            date=${dates_active[i]}
             wait ${pid}
             stat=${?}
             if [ ${stat} -ne 0 ]
             then
-                echo "[${pid}] ERROR ${stat} ($((i+1))/${num_procs})" >&2
+                echo "[${pid}] ERROR ${stat} ($((i+1))/${num_procs}) at ${date}" >&2
                 nerr=$((nerr + 1))
             fi
         done
