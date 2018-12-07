@@ -150,17 +150,15 @@ do
         # Count the number of failed processes
         # Even if one fails, the others can finish
         nerr=0
+        stats=()
         for (( i=0; i<${num_procs}; i++ ))
         do
             pid=${pids_active[i]}
             date=${dates_active[i]}
             wait ${pid}
             stat=${?}
-            if [ ${stat} -ne 0 ]
-            then
-                echo "[${pid}] ERROR ${stat} ($((i+1))/${num_procs}) at ${date}" >&2
-                nerr=$((nerr + 1))
-            fi
+            stats[i]=${stat}
+            [ ${stat} -ne 0 ] && nerr=$((nerr + 1))
         done
         pics_active=()
 
@@ -170,7 +168,18 @@ do
         # In case of failed processes, abort execution
         if [ ${nerr} -gt 0 ]
         then
-            echo "ABORT ${nerr}/${num_procs}" >&2
+            for (( i=0; i<${num_procs}; i++ ))
+            do
+                pid=${pids_active[i]}
+                date=${dates_active[i]}
+                if [ ${stat} -eq 0 ]
+                then
+                    echo "[${pid}] OK at ${date}" >&2
+                else
+                    echo "[${pid}] ERROR ${stat} ($((i+1))/${num_procs}) at ${date}" >&2
+                fi
+            done
+            echo " ABORT ${nerr}/${num_procs}" >&2
             exit ${nerr}
         fi
     fi
