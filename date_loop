@@ -172,11 +172,12 @@ do
             do
                 pid=${pids_active[i]}
                 date=${dates_active[i]}
+                stat=${stats[i]}
                 if [ ${stat} -eq 0 ]
                 then
-                    echo "[${pid}] OK at ${date}" >&2
+                    echo "[${pid}] OK ${date}" >&2
                 else
-                    echo "[${pid}] ERROR ${stat} ($((i+1))/${num_procs}) at ${date}" >&2
+                    echo "[${pid}] ERROR ${stat} ($((i+1))/${num_procs}) ${date}" >&2
                 fi
             done
             echo " ABORT ${nerr}/${num_procs}" >&2
