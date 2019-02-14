@@ -31,7 +31,7 @@ month_days()
 expand_padded_number_lists_ranges()
 {
     # Get width based on first number
-    local w=$(echo $1 | sed 's/\([0-9]\+\).*/\1/' | wc -L)
+    local w=$(echo ${1} | sed 's/\([0-9]\+\).*/\1/' | wc -L)
 
     for ex in $(echo $@ | sed 's/+/ /g')
     do
@@ -49,9 +49,12 @@ expand_padded_number_lists_ranges()
 #
 expand_padded_number_range()
 {
-    local ex="$1"
+    local ex="${1}"
     elements=($(echo ${ex//-/ }))
     ne=${#elements[@]}
+
+    # Get width based on first number
+    local w=$(echo ${elements} | sed 's/\([0-9]\+\).*/\1/' | wc -L)
 
     if [ ${ne} -eq 1 ]
     then
@@ -69,8 +72,8 @@ expand_padded_number_range()
         element1=${elements[1]}
         [ "${element0}" -eq "${element0}" ] || exit 11 # int check
         [ "${element1}" -eq "${element1}" ] || exit 11 # int check
-        [ ${#element0} -ne ${w} ] && exit 44
-        [ ${#element1} -ne ${w} ] && exit 44
+        [ "${#element0}" -ne "${w}" ] && exit 44
+        [ "${#element1}" -ne "${w}" ] && exit 44
         for element in $(seq -w ${element0} ${element1})
         do
             echo ${element}
