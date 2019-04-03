@@ -5,7 +5,7 @@ SESSION="./session"
 
 main()
 {
-    files=($(\cat "${SESSION}" | grep '^[^#]'))
+    files=($(eval echo $(\cat "${SESSION}" | grep '^[^#]')))
     ${EXE} "${files[@]}"
 }
 
