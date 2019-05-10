@@ -1,0 +1,16 @@
+#!/bin/bash
+
+USAGE="usage: $(basename ${0}) \$0"
+[ ${#} -ne 1 ] && { echo "${USAGE}" >&2; exit 1; }
+
+# Fetch calling script with relative path
+caller_rel="${1}"
+
+# Convert relative to absolute path
+caller_abs="$(readlink -f "${caller_rel}")"
+
+# Return the path to the directory
+dirname "${caller_abs}"
+
+exit 0
+
