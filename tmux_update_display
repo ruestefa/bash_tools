@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# tmux_update_display -- Update DISPLAY env var in tmux session
+#
+
+main()
+{
+    local new_display="$(tmux show-env | sed -n 's/^DISPLAY=//p')"
+    echo "DISPLAY: '${DISPLAY}' -> '${new_display}'"
+    export DISPLAY="${new_display}"
+}
+
+main "${@}"

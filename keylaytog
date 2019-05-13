@@ -48,9 +48,7 @@ ensure_display_access()
 
     # Assumption: Lost connection when reattaching to running
     # remote tmux session (without nested SSH connection).
-    local new_display="$(tmux show-env | sed -n 's/^DISPLAY=//p')"
-    echo "Update DISPLAY: '${DISPLAY}' -> '${new_display}'"
-    export DISPLAY="${new_display}"
+    tmux_update_display
 
     check_display_available && return 0
 
