@@ -1,0 +1,50 @@
+#!/bin/bash
+#
+# keylaytog -- Toggle keyboard layout variant
+#
+
+layout=us
+variants=('' alt-intl)
+
+# Get current setup
+cur_layout=$(setxkbmap -query | \grep layout | awk '{print $2}')
+cur_variant=$(setxkbmap -query | \grep variant | awk '{print $2}')
+
+# Determine new setup
+new_layout="${layout}"
+if [ "${cur_layout}" != "${new_layout}" ]
+then
+    # Different layout: use first variant
+    new_variant="${variants[0]}"
+else
+    # Same layout: cycle through variants
+    # Results in toggling for two variants
+    # If current variant is not found, default to first
+    n=${#variants[@]}
+    new_i=0
+    for i in $(seq 0 $((n - 1)))
+    do
+        variant_i="${variants[$i]}"
+        if [ "${cur_variant}" == "${variant_i}" ]
+        then
+            # Current variant found: select next variant
+            # If the current is the last, stick with the
+            # first, otherwise select the next one
+            [ ${i} -lt $((n - 1)) ] && new_i=$((i + 1))
+            break
+        fi
+    done
+    new_variant="${variants[$new_i]}"
+fi
+
+print_variant() { [ "${1}" == '' ] && echo "''" || echo "${1}"; }
+printf "layout  : %-8s -> %-8s\n" "${cur_layout}" "${new_layout}"
+printf "variant : %-8s -> %-8s\n" \
+        "$(print_variant ${cur_variant})" \
+        "$(print_variant ${new_variant})"
+
+cmd="setxkbmap -layout ${new_layout}"
+[ "${new_variant}" != '' ] && cmd+=" -variant ${new_variant}"
+#echo "${cmd}"
+eval "${cmd}"
+
