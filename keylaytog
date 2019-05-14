@@ -48,7 +48,7 @@ ensure_display_access()
 
     # Assumption: Lost connection when reattaching to running
     # remote tmux session (without nested SSH connection).
-    tmux_update_display
+    source tmux_update_display
 
     check_display_available && return 0
 

@@ -2,6 +2,8 @@
 #
 # tmux_update_display -- Update DISPLAY env var in tmux session
 #
+# Usage: source tmux_update_display
+#
 
 main()
 {
