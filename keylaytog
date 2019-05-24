@@ -31,7 +31,7 @@ main()
     done
     new_layout="${layouts[$new_i]}"
     
-    printf "${cur_layout} -> ${new_layout}"
+    printf "${cur_layout} -> ${new_layout}\n"
     
     setxkbmap -layout ${new_layout}
 }
