@@ -11,7 +11,7 @@ main()
     ensure_display_access
 
     # Get current setup
-    cur_layout=$(setxkbmap -query | \grep layout | awk '{print ${2}}')
+    cur_layout=$(setxkbmap -query | \grep layout | awk '{print $2}')
 
     # Cycle through layouts (equal to toggling for two options)
     # If current layout is not found, default to first
@@ -54,7 +54,7 @@ ensure_display_access()
 
     # Damn, still no display access!
 
-    echo "$(basename ${0}): Cannot open display '${DISPLAY}'" >&2
+    echo "Cannot open display ${DISPLAY}" >&2
     return 255
 }
 
