@@ -9,17 +9,17 @@ main()
     layouts=(us us_intl)
 
     ensure_display_access
-    
+
     # Get current setup
-    cur_layout=$(setxkbmap -query | \grep layout | awk '{print $2}')
-    
+    cur_layout=$(setxkbmap -query | \grep layout | awk '{print ${2}}')
+
     # Cycle through layouts (equal to toggling for two options)
     # If current layout is not found, default to first
     n=${#layouts[@]}
     new_i=0
     for i in $(seq 0 $((n - 1)))
     do
-        layout_i="${layouts[$i]}"
+        layout_i="${layouts[${i}]}"
         if [ "${cur_layout}" == "${layout_i}" ]
         then
             # Current layout found: select next layout
@@ -29,10 +29,10 @@ main()
             break
         fi
     done
-    new_layout="${layouts[$new_i]}"
-    
+    new_layout="${layouts[${new_i}]}"
+
     printf "${cur_layout} -> ${new_layout}\n"
-    
+
     setxkbmap -layout ${new_layout}
 }
 
@@ -55,7 +55,7 @@ ensure_display_access()
     # Damn, still no display access!
 
     echo "$(basename ${0}): Cannot open display '${DISPLAY}'" >&2
-    exit 255
+    return 255
 }
 
 
@@ -80,7 +80,7 @@ check_display_available()
         return 255
     else
         echo "check_display_available: unexpected error running ${cmd}: ${err}">&2
-        exit 1
+        return 1
     fi
 }
 

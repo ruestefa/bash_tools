@@ -1,7 +1,7 @@
 #!/bin/bash
 # by Stefan Ruedisuehli, 2015-08-21
 
-USAGE="Usage: $(basename $0) <SILENT> <CMD>
+USAGE="Usage: $(basename ${0}) <SILENT> <CMD>
 
 Execute a command silently, i.e. without writing to either stdout nor stderr.
 
@@ -13,28 +13,28 @@ main()
 {
     # Eval inargs
     narg_min=2
-    if [[ $# -lt $narg_min ]]
+    if [[ ${#} -lt ${narg_min} ]]
     then
         echo "${USAGE}"
-        exit 1
+        return 1
     fi
-    local silent="$1"
+    local silent="${1}"
     shift
 
     # Execute command
     if ${silent}
     then
-        eval "$@" >/dev/null 2>/dev/null
+        eval "${@}" >/dev/null 2>/dev/null
     else
-        eval "$@"
+        eval "${@}"
     fi
 
     # Success check
-    local stat=$?
+    local stat=${?}
     if [[ ${stat} -ne 0 ]]
     then
-        exit ${stat}
+        return ${stat}
     fi
 }
 
-main "$@"
+main "${@}"

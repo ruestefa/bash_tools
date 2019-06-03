@@ -1,7 +1,7 @@
 #!/bin/bash
 
 option_list=("TYPE" "DIR_NAME" "DO_BACKUP" "USE_EXISTING" "VERBOSE")
-USAGE="Usage: $(basename $0) ${option_list[@]}
+USAGE="Usage: $(basename ${0}) ${option_list[@]}
 
 Prepare a directory and retain, remove, or back up a possible pre-existing directory of the same name.
 
@@ -16,16 +16,16 @@ main()
 {
     # Eval inargs
     local nargs_min=5
-    if [[ $# -lt ${nargs_min} ]]
+    if [[ ${#} -lt ${nargs_min} ]]
     then
         echo "${USAGE}"
-        exit 1
+        return 1
     fi
-    local name="$1"
-    local dirname="$2"
-    local do_backup=$3
-    local use_existing=$4
-    local verbose=$5
+    local name="${1}"
+    local dirname="${2}"
+    local do_backup=${3}
+    local use_existing=${4}
+    local verbose=${5}
 
     # Set verbosity flag for commands
     [[ "${verbose}" == "true" ]] && vflag="-v" || vflag=""
@@ -59,9 +59,9 @@ main()
                 then
                     echo "warning: overwriting existing ${name} directory '${bak}'" >&2
                 fi
-                \rm -rf $vflag "$bak"
+                \rm -rf ${vflag} "${bak}"
             fi
-            \mv -v "$dirname" -T "$bak"
+            \mv -v "${dirname}" -T "${bak}"
 
         # Remove the existing directory
         else
@@ -69,12 +69,12 @@ main()
             then
                 echo "warning: overwriting existing ${name} directory '${dirname}'" >&2
             fi
-            \rm -rf $vflag "${dirname}"
+            \rm -rf ${vflag} "${dirname}"
         fi
     fi
 
     # Create the new directory
-    \mkdir -p $vflag "${dirname}"
+    \mkdir -p ${vflag} "${dirname}"
 }
 
-main "$@"
+main "${@}"

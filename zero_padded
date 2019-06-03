@@ -1,7 +1,7 @@
 #!/bin/bash
 # by Stefan Ruedisuehli, 2015-08-21
 
-USAGE="$(basename $0) N NUMBER(S)
+USAGE="$(basename ${0}) N NUMBER(S)
  - N: length of returned padded numbers
  - NUMBER(S): list of numbers to be zero-padded"
 
@@ -9,14 +9,11 @@ main()
 {
     # Eval inargs
     nargs_min=2
-    if [[ $# -lt ${nargs_min} ]]
-    then
-        echo "${USAGE}"
-        exit 1
-    fi
-    local n="$1"
+    [ ${#} -lt ${nargs_min} ]] && { echo "${USAGE}"; return 1; }
+
+    local n="${1}"
     shift
-    local list=($@)
+    local list=(${@})
 
     # Add leading zeros
     for num in ${list[@]}
@@ -25,4 +22,4 @@ main()
     done
 }
 
-main "$@"
+main "${@}"

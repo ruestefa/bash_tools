@@ -6,7 +6,7 @@ for i in "$@"; do
    if [[ -f "$i" ]]; then
       bibfile="${i:0:${#i}-3}bib"
       echo "$i  -->  $bibfile"
-      ris2xml "$i" > "/tmp/$i.xml" 
+      ris2xml "$i" > "/tmp/$i.xml"
       xml2bib "/tmp/$i.xml" > $bibfile
    else
       echo "error: $i not found"

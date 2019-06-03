@@ -13,12 +13,12 @@ main()
     if [[ $# -lt 1 ]]
     then
         echo "${USAGE}"
-        exit 1
+        return 1
     fi
     case ${1} in
       ( 0 ) VB1=false ;;
       ( 1 ) VB1=true ;;
-      ( * ) echo "${USAGE}"; exit 1;;
+      ( * ) echo "${USAGE}"; return 1;;
     esac
     shift
     EXPR_LIST=($@)
