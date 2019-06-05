@@ -1,12 +1,11 @@
 #!/bin/bash
 
-EXE="vim"
 SESSION="./session"
 
 main()
 {
     files=($(eval echo $(\cat "${SESSION}" | grep '^[^#]' | sed "s/['\"]/\\\&/g"))) || return ${?}
-    ${EXE} "${files[@]}" || return ${?}
+    TERM=screen-256color vim "${files[@]}" || return ${?}
 }
 
 main "$@"
