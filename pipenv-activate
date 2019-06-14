@@ -1,0 +1,52 @@
+#!/bin/bash
+#
+# pipenv-activate -- Activate a pipenv environment without spawning a new shell
+#
+
+# Avoid any non-local variables that would be sourced
+global() {
+
+local script="$(basename "${BASH_SOURCE}")"
+local usage="usage: source ${SCRIPT} [path]"
+
+# Make sure the script is sourced, not executed
+[ "${BASH_SOURCE}" == "${0}" ] && {
+    echo "error: ${script} must be sourced!" >&2
+    return 1
+}
+
+main()
+{
+    # Get project directory (optional argument)
+    local proj_path="${1}"
+    [ "${1}" == '' ] && proj_path='.'
+
+    # Check that project path directory exists
+    [ -d "${proj_path}" ] || {
+        echo "error: project path not found: ${proj_path}" >&2
+        return 1
+    }
+
+    # Path to virtual environment
+    local venv_path="$(cd "${proj_path}"; pipenv --venv 2>/dev/null)" || {
+        echo "error: you must enter a project directory!" >&2
+        return 1
+    }
+
+    # Path to activate script
+    local activate_path="${venv_path}/bin/activate"
+    [ ! -f "${activate_path}" ] && {
+        echo "error: activate script not found: ${activate_path}" >&2
+        return 1
+    }
+
+    # Activate environment
+    echo 'source "'"${activate_path}"'"'
+    \source "${activate_path}" || {
+        echo "error: cannot source activate script: ${activate_path}" >&2
+        return 1
+    }
+}
+main "${@}" || { echo "${USAGE}" >&2; return $?; }
+
+}; global "${@}"
