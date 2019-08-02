@@ -8,7 +8,7 @@ main()
 {
     layouts=(us us_intl)
 
-    ensure_display_access
+    ensure_display_access || return 1
 
     # Get current setup
     cur_layout=$(setxkbmap -query | \grep layout | awk '{print $2}')
@@ -54,8 +54,8 @@ ensure_display_access()
 
     # Damn, still no display access!
 
-    echo "$(basename ${0}): Cannot open display '${DISPLAY}'" >&2
-    return 255
+    echo "Cannot open display '${DISPLAY}'" >&2
+    return 1
 }
 
 
