@@ -3,30 +3,30 @@
 
 DBG=false
 
-USAGE="usage: $(basename $0) <WIDTH> <ANGLE> <DY> <OUTFILE> <LABEL>"
+USAGE="usage: $(basename ${0}) <WIDTH> <ANGLE> <DY> <OUTFILE> <LABEL>"
 
 main()
 {
     # Eval inargs
-    local narg_expected=5
-    if [[ $# -ne ${narg_expected} ]]
+    local narg_exp=5
+    if [ ${#} -ne ${narg_exp} ]
     then
-        [[ $# -gt 0 ]] && echo "error: wrong arguments ($#/${narg_expected}): $@" >&2
+        [[ $# -gt 0 ]] && echo "error: wrong arguments (${#}/${narg_exp}): $@" >&2
         echo "${USAGE}"
-        exit  1
+        return  1
     fi
-    local width="$1"
-    local angle="$2"
-    local dy="$3"
-    local outfile="$4"
-    local label="$5"
+    local width="${1}"
+    local angle="${2}"
+    local dy="${3}"
+    local outfile="${4}"
+    local label="${5}"
 
     local labelfile="_label.${group}.png"
     local size="${width}x$((width/10))"
     local pts="$((width*7/100))"
 
     ${DBG} && echo "------------------------------"
-    ${DBG} && echo "$0 $@"
+    ${DBG} && echo "${0} ${@}"
     ${DBG} && echo "------------------------------"
     ${DBG} && echo "label     : ${label}"
     ${DBG} && echo "width     : ${width}"
@@ -51,4 +51,4 @@ main()
         PNG32:"${outfile}"
 }
 
-main "$@"
+main "${@}"

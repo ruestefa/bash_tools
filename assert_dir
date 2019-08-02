@@ -3,7 +3,7 @@
 
 FILE_CHECK=true
 
-USAGE="Usage: $(basename $0) <DIR(S)>
+USAGE="Usage: $(basename ${0}) <DIR(S)>
 
 Assert the existance of one or more directories."
 
@@ -11,17 +11,13 @@ main()
 {
     # Eval inargs
     local narg_min=1
-    if [[ $# -lt ${narg_min} ]]
-    then
-        echo "${USAGE}"
-        exit 1
-    fi
+    [ $# -lt ${narg_min} ] && { echo "${USAGE}" >&2; return 1; }
 
     # Check directories
     local stat=0
-    for dir in "$@"
+    for dir in "${@}"
     do
-        if [[ ! -d "${dir}" ]]
+        if [ ! -d "${dir}" ]
         then
             echo -n "error: directory not found: '${dir}'" >&2
             if ${FILE_CHECK}
@@ -40,4 +36,4 @@ main()
     return ${stat}
 }
 
-main "$@"
+main "${@}"

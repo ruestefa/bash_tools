@@ -1,27 +1,26 @@
 #!/bin/bash
 # src: http://stackoverflow.com/a/19358402/4419816
 
-USAGE="Usage: $(basename "$0") <INFILE(S)> <OUTFILE>"
+USAGE="Usage: $(basename "${0}") <INFILE(S)> <OUTFILE>"
 
 main()
 {
-    if [[ $# -lt 2 ]]
+    if [[ ${#} -lt 2 ]]
     then
         echo "${USAGE}"
-        exit 1
+        return 1
     fi
-    infiles=("$@")
+    infiles=("${@}")
     n=$((${#infiles[@]}-1))
     outfile="${infiles[$n]}"
-    unset infiles[$n]
+    unset infiles[${n}]
 
-    assert_file "${infiles[@]}"
-    [[ $? -ne 0 ]] && exit 1
+    assert_file "${infiles[@]}" || return ${?}
 
-    if [[ -f "${outfile}" ]]
+    if [ -f "${outfile}" ]
     then
-        echo "Error: '${outfile}' already exists!" >&2
-        exit 1
+        echo "error: '${outfile}' already exists!" >&2
+        return 1
     fi
 
     echo "PDFMERGE: ${infiles[@]} -> ${outfile}"
@@ -33,11 +32,11 @@ main()
         -dPDFSETTINGS=/prepress \
         -sOutputFile="${outfile}" \
         "${infiles[@]}" >/dev/null 2>&1
-    if [[ $? -ne 0 ]]
+    if [ ${?} -ne 0 ]
     then
         echo "Errors occurred during merging!" >&2
-        exit 1
+        return 1
     fi
 }
 
-main "$@"
+main "${@}"

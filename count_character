@@ -1,21 +1,17 @@
 #!/bin/bash
 # by Stefan Ruedisuehli, 2015-08-21
 
-USAGE="Usage: $(basename $0) <CHARACTER> <STRING>
+USAGE="Usage: $(basename ${0}) <CHARACTER> <STRING>
 
 Count the number of occurrences of a character in a string."
 
 main()
 {
     narg=2
-    if [[ $# -ne $narg ]]
-    then
-        echo "${USAGE}"
-        exit 1
-    fi
-    local ch="$1"
-    local str="$2"
-    grep -o "$ch" <<< "$str" | wc -l
+    [ $# -ne $narg ] && { echo "${USAGE}"; return 1; }
+    local ch="${1}"
+    local str="${2}"
+    grep -o "${ch}" <<< "${str}" | wc -l
 }
 
-main "$@"
+main "${@}"
