@@ -6,7 +6,7 @@ SESSION="./session"
 main()
 {
     files=($(eval echo $(\cat "${SESSION}" | grep '^[^#]' | sed "s/['\"]/\\\&/g"))) || exit ${?}
-    ${EXE} "${files[@]}" || exit ${?}
+    ${EXE} -- "${files[@]}" || exit ${?}
 }
 
 main "$@"

@@ -55,7 +55,7 @@ ensure_display_access()
     # Damn, still no display access!
 
     echo "$(basename ${0}): Cannot open display '${DISPLAY}'" >&2
-    exit 255
+    return 255
 }
 
 
@@ -80,7 +80,7 @@ check_display_available()
         return 255
     else
         echo "check_display_available: unexpected error running ${cmd}: ${err}">&2
-        exit 1
+        return 1
     fi
 }
 
