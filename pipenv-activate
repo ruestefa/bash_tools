@@ -27,6 +27,12 @@ main()
         return 1
     }
 
+    # Check that pipenv is available
+    which pipenv >/dev/null 2>&1 || {
+        echo "error: pipenv not found!" >&2
+        return 1
+    }
+
     # Path to virtual environment
     local venv_path="$(cd "${proj_path}"; pipenv --venv 2>/dev/null)" || {
         echo "error: you must enter a project directory!" >&2
