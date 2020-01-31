@@ -2,6 +2,8 @@
 
 SESSION_FILE_DEFAULT="./session"
 
+DBG=false
+
 main()
 {
     local session_files=("${@}")
@@ -9,7 +11,8 @@ main()
 
     local vim_files=($(parse_session_files "${session_files[@]}"))
 
-    TERM=screen-256color vim -- "${vim_files[@]}" || return ${?}
+    local cmd="TERM=screen-256color vim -- $(echo "${vim_files[@]}")" || return ${?}
+    ${DBG} && echo "${cmd}" >&2 || eval ${cmd}
 
     return 0
 }
@@ -38,12 +41,16 @@ parse_session_file()
     local sub_file
     local sub_path
     local line
+    ${DBG} && echo "F '${file}'" >&2
     while read line
     do
+        ${DBG} && echo "> '${line}'" >&2
         if [ "${line:0:1}" == '<' ]
         then
             sub_file="$(echo "${line:1}" | sed 's/^ \+//')"
             sub_path="$(dirname "${sub_file}")"
+            ${DBG} && echo "  sub_file : ${sub_file}" >&2
+            ${DBG} && echo "  sub_path : ${sub_path}" >&2
             parse_session_file "${sub_file}" "${sub_path}"
         else
             parse_session_line "${line}" "${path}"
