@@ -3,6 +3,16 @@
 SESSION_FILE_DEFAULT="./session"
 
 DBG=false
+VIM=vim
+while [ ${#} -gt 0 ]
+do
+    case "${1}" in
+        --) shift 1; break;;
+        -D) shift 1; DBG=true;;
+        -e) shift 1; VIM=${1}; shift 1;;
+        -*) echo "unknown option ${1}" >&1; exit 1;;
+    esac
+done
 
 main()
 {
@@ -15,8 +25,8 @@ main()
     ) || return ${?}
 
     local cmd
-    cmd="TERM=screen-256color vim -- $(echo "${vim_files[@]}")" || return ${?}
-    ${DBG} && echo "${cmd}" >&2 || eval ${cmd}
+    cmd="TERM=screen-256color ${VIM} -- $(echo "${vim_files[@]}")" || return ${?}
+    ${DBG} && echo "${cmd}" >&2 || eval "${cmd}"
 
     return 0
 }
@@ -27,8 +37,8 @@ main()
 parse_session_files()
 {
     local files=("${@}")
-    ${DBG} && echo "parse_session_files"
-    ${DBG} && echo "| files: ${files[@]}"
+    ${DBG} && echo "parse_session_files" >&2
+    ${DBG} && echo "| files: ${files[@]}" >&2
     local file
     for file in "${files[@]}"
     do
