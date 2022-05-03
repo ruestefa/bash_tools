@@ -39,4 +39,14 @@ main()
     fi
 }
 
+
+command -v assert_file >/dev/null || {
+    assert_file()
+    {
+        local path="${1}"
+        [ -f "${path}" ] || return 1
+        return 0
+    }
+}
+
 main "${@}"
