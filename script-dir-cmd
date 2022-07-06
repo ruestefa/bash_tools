@@ -1,0 +1,69 @@
+#!/bin/bash
+# Print command to obtain script directory from inside a script
+
+# Short version
+# src: https://stackoverflow.com/a/246128/4419816
+CMD='SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )'
+
+
+# Long version
+get_script_dir()
+{
+    # src: https://stackoverflow.com/a/246128/4419816
+    local SOURCE=${BASH_SOURCE[0]}
+    local DIR
+    # Resolve ${SOURCE} until the file is no longer a symlink
+    while [ -L "${SOURCE}" ]; do
+        DIR=$( cd -P "$( dirname "${SOURCE}" )" >/dev/null 2>&1 && pwd )
+        SOURCE=$(readlink "${SOURCE}")
+        # If ${SOURCE} was a relative symlink, we need to resolve it
+        # relative to the path where the symlink file was located
+        [[ "${SOURCE}" != /* ]] && SOURCE="${DIR}/${SOURCE}"
+    done
+    ( cd -P "$( dirname "${SOURCE}" )" >/dev/null 2>&1 && pwd )
+}
+
+
+NAME="$(basename "${0}")"
+USAGE="usage: ${NAME} (short|long|test|help)"
+
+
+main()
+{
+    case "${1}" in
+        "short")
+            echo "${CMD}"
+        ;;
+        "long")
+            declare -f get_script_dir
+        ;;
+        "test")
+            echo -e "\n$ ${NAME} help"
+            "${0} help"
+    
+            echo -e "\n$ ${NAME} short"
+            "${0}" short
+    
+            echo -e "\n$ ${NAME} long"
+            "${0}" long
+    
+            echo -e "\n$ eval \"\$(${NAME} short)\" && echo \"\${SCRIPT_DIR}\""
+            eval "$(${0} short)" && echo ${SCRIPT_DIR}
+    
+            echo -e "\n$ eval \"\$(${NAME} long)\" && get_script_dir"
+            eval "$(${0} long)" && get_script_dir
+        ;;
+        ""|"help")
+            echo "${USAGE}" >&2
+            return 1
+        ;;
+        *)
+            echo "${USAGE}" >&2
+            echo -e "\nerror: wrong argument: ${1}" >&2
+            return 1
+        ;;
+    esac
+}
+
+
+main "${@}"
