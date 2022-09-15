@@ -1,0 +1,20 @@
+#!/bin/bash
+# Print command to obtain the caller script from inside a script
+
+# src: https://stackoverflow.com/a/21663914/4419816 
+CMD0='CALLER="$( \ps -o command= -p ${PPID} | \cut -d\  -f2 )"'
+
+# src: https://stackoverflow.com/a/43842413/4419816
+CMD1='CALLER="( \cut -d $'"'\0'"' -f2 /proc/${PPID}/cmdline )"'
+
+NAME="$(basename "${0}")"
+USAGE="usage: ${NAME} [0|1]"
+
+case "${1}" in
+    ""|0) echo "${CMD0}";;
+    1) echo "${CMD1}";;
+    *)
+        echo "${USAGE}" >&2
+        echo "error: invalid argument '${1}'" >&2
+    ;;
+esac
