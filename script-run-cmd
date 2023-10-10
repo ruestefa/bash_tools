@@ -1,0 +1,16 @@
+#!/bin/bash
+# Print command to show and run a command
+
+main()
+{
+    echo 'DRY="${DRY:-false}"'
+    echo ''
+    echo 'run()'
+    echo '{'
+    echo '    local cmd=("${@}")'
+    echo '    { echo -n "RUN " && printf "%q " "${cmd[@]}" && echo; } >&2'
+    echo '    ${DRY} || \eval "${cmd[*]@Q}" || return'
+    echo '}'
+}
+
+main "${@}"
