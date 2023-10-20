@@ -8,8 +8,9 @@ main()
     echo 'run()'
     echo '{'
     echo '    local cmd=("${@}")'
-    echo '    { echo -n "RUN " && printf "%q " "${cmd[@]}" && echo; } >&2'
-    echo '    ${DRY} || \eval "${cmd[*]@Q}" || return'
+    echo '    echo "RUN $(printf "%q " "${cmd[@]}")" >&2'
+    echo '    ${DRY} && return 0'
+    echo '    \eval $(printf "%q " "${cmd[@]}")'
     echo '}'
 }
 
